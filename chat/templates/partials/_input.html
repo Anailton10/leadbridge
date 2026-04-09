@@ -1,0 +1,27 @@
+<form 
+  hx-post="{% url 'send' %}"
+  hx-target="#messages"
+  hx-swap="innerHTML"
+  hx-on::after-request="this.reset()"
+  hx-indicator="#typing-indicator"
+  class="flex items-center gap-2"
+> 
+  {% csrf_token %}
+
+  <input 
+    type="text" 
+    name="content"
+    placeholder="Digite sua mensagem..."
+    required
+    autocomplete="off"
+    hx-on:keydown="if(event.key==='Enter'){ this.form.requestSubmit(); event.preventDefault(); }"
+    class="flex-1 px-4 py-3 rounded-full bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/60 text-sm sm:text-base"
+  >
+
+  <button 
+    type="submit"
+    class="bg-blue-600 px-4 py-2 rounded-full hover:bg-blue-500 transition-colors text-sm sm:text-base"
+  >
+    Enviar
+  </button>
+</form>

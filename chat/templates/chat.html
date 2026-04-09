@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="h-full flex flex-col">
+  <div class="mx-auto flex h-full w-full max-w-5xl flex-col">
+
+    <!-- Messages -->
+    <div
+      id="messages"
+      class="flex-1 overflow-y-auto px-4 py-6 space-y-4"
+      hx-on::after-swap="this.scrollTop = this.scrollHeight"
+    >
+      {% include "partials/_messages.html" %}
+    </div>
+
+    <!-- Input -->
+    <div class="border-t border-gray-700 bg-gray-900 px-4 py-3 sm:py-4">
+      {% include "partials/_input.html" %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
