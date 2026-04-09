@@ -29,7 +29,7 @@ class AgenteIa:
                 )
 
             chat = client.chats.create(
-                model="gemini-3.1-flash-lite-preview",
+                model="gemini-2.5-flash",
                 config=self.config,
                 history=chat_history,
             )
@@ -43,9 +43,10 @@ class AgenteIa:
             return {
                 "reply": "Erro ao processar sua solicitação.",
                 "data": {
-                    "nome": None,
-                    "cidade": None,
-                    "estado": None,
-                    "telefone": None,
+                    "name": None,
+                    "city": None,
+                    "state": None,
+                    "contact": None,
+                    "address": None,
                 },
             }

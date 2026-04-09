@@ -3,6 +3,7 @@ from django.views import View, generic
 from time import sleep
 from .service import AgenteIa
 from promoter.models import Promoter
+from leads.models import Lead
 
 MAX_MESSAGES = 20
 SYSTEM_PROMPT = """Você é um atendente virtual da Hidrotintas.
@@ -29,6 +30,7 @@ Objetivo:
   1. Nome completo
   2. Cidade e estado
   3. Telefone com DDD
+  4. Endereço
 - Quando tiver os dados, confirme as informações e informe que um promotor de vendas entrará em contato em breve
 
 Formato de resposta (OBRIGATÓRIO):
@@ -37,10 +39,11 @@ Responda APENAS com JSON válido. Não inclua nenhum texto fora do JSON.
 {
   "reply": "mensagem amigável para o cliente",
   "data": {
-    "nome": null,
-    "cidade": null,
-    "estado": null
-    "telefone": null
+    "name": null,
+    "contact": null,
+    "city": null,
+    "address": null,
+    "state": null,
   }
 }
 
@@ -87,7 +90,7 @@ class SendMessegesView(View):
                 historico=messages, user_content=content
             )
             # Pequena pausa para o efeito de "digitando..." ficar perceptível
-            sleep(0.9)
+            # sleep(0.9)
             # Atualiza o histórico local com a interação completa
             messages.append({"role": "user", "parts": [{"text": content}]})
             messages.append(
@@ -100,12 +103,21 @@ class SendMessegesView(View):
             request.session["messages"] = messages
             request.session.modified = True
             promoter = Promoter.objects.filter(
-                state__sigla=response_text["data"]["estado"]
+                state__sigla=response_text["data"]["state"]
             ).first()
             wpp = None
             if promoter:
-                msg = f"Olá {promoter.name}, segue o contato para uma visita Interessado: {response_text['data']['nome']} - Numero para contato {response_text['data']['telefone']} - cidade {response_text['data']['cidade']}"
+                msg = f"Olá {promoter.name}, segue o contato para uma visita Interessado: {response_text['data']['name']} - Numero para contato {response_text['data']['contact']} - cidade {response_text['data']['city']}"
                 wpp = f"https://wa.me/{promoter.contact}?text={msg}"
+                if all(response_text["data"].values()):
+                    Lead.objects.create(
+                        name=response_text["data"]["name"],
+                        contact=response_text["data"]["contact"],
+                        promoter=promoter,
+                        city=response_text["data"]["city"],
+                        address=response_text["data"]["address"],
+                    )
+            print(f"DEBUG --> {response_text['data']}")
         # Retorno parcial para o HTMX
         return render(
             request, "partials/_messages.html", {"messages": messages, "wpp": wpp}
