@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Promoters
+{% endblock %}
+
+{% block content %}
+  <div class="w-full max-w-6xl bg-gray-800 p-6 rounded-2xl shadow-lg space-y-6">
+    <!-- Barra de ações -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-xl font-semibold">Promotores</h1>
+
+      <div class="flex items-center gap-2">
+        <a href="{% url 'promoter:create' %}" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">+ Novo</a>
+
+        <form method="get" class="flex items-center gap-2">
+          <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar..." class="bg-gray-700 border-none rounded-lg px-3 py-2 text-sm focus:ring-0" />
+
+          <button type="submit" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm">Buscar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-gray-400 border-b border-gray-700">
+          <tr class="text-left">
+            <th class="py-2">Nome</th>
+            <th>Sobrenome</th>
+            <th>Estado</th>
+            <th>Contato</th>
+            <th class="text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-700">
+          {% for promoter in object_list %}
+            <tr class="hover:bg-gray-700/40">
+              <td class="py-2">{{ promoter.name }}</td>
+              <td>{{ promoter.last_name }}</td>
+              <td>{{ promoter.state }}</td>
+              <td>{{ promoter.contact }}</td>
+
+              <td class="text-right space-x-2">
+                <a href="{% url 'promoter:update' promoter.pk %}" class="text-yellow-400 hover:underline">Editar</a>
+                <form class="inline-block" action="{% url 'promoter:delete' promoter.pk %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="text-red-400 hover:underline" onclick="return confirm('Tem certeza que deseja excluir este produto?')">Excluir</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-4 text-gray-400">Nenhum promoter cadastrado</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

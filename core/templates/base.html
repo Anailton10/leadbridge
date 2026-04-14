@@ -40,7 +40,7 @@
   {% if user.is_authenticated %}
     {% include "components/_navbar.html" with title="Atendimento" %}
   {% endif %}
-  <main class="flex-1 flex items-center justify-center overflow-auto">
+  <main class="flex-1 flex justify-center items-start pt-10 overflow-auto">
     {% block content %}{% endblock %}
   </main>
 </body>

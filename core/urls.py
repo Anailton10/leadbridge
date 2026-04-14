@@ -22,7 +22,7 @@ from . import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/login/", views.CustomLoginView.as_view(), name="login"),
-    # path("promoter/", include("promoter.urls")),
+    path("promoter/", include("promoter.urls")),
     path("chat/", include("chat.urls")),
     path("leads/", include("leads.urls")),
 ]
