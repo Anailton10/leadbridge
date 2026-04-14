@@ -1,0 +1,41 @@
+{% for lead in leads %}
+<tr class="hover:bg-gray-800 transition-colors">
+  
+  <td class="px-4 py-3 font-medium text-gray-100">
+    {{ lead.name }}
+  </td>
+
+  <td class="px-4 py-3 font-medium text-gray-100">
+    {{ lead.address }}
+  </td>
+
+  <td class="px-4 py-3 text-gray-300">
+    {{ lead.city }}
+  </td>
+
+  <td class="px-4 py-3 text-gray-300">
+    {{ lead.promoter.state.sigla }}
+  </td>
+
+  <td class="px-4 py-3 text-gray-300">
+    {{ lead.promoter.name }} {{ lead.promoter.last_name }}
+  </td>
+
+  <td class="px-4 py-3">
+    <a 
+      href="{{ lead.whatsapp_link|safe }}"
+      target="_blank"
+      class="inline-block bg-green-600 hover:bg-green-500 text-white text-xs px-3 py-1.5 rounded-md transition-colors"
+    >
+      Enviar WhatsApp
+    </a>
+  </td>
+
+</tr>
+{% empty %}
+<tr>
+  <td colspan="5" class="py-6 text-gray-400 text-center">
+    Nenhum lead ainda.
+  </td>
+</tr>
+{% endfor %}

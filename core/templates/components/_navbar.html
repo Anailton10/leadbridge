@@ -1,0 +1,29 @@
+<nav class="bg-gray-800 border-b border-gray-700">
+  <div class="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between">
+
+    <!-- Título -->
+    <h1 class="text-base sm:text-lg font-semibold">
+      {{ title|default:"Atendimento" }}
+    </h1>
+
+    <!-- Ações -->
+    <div class="flex items-center gap-4">
+
+      <a href="{% url 'leads:list' %}"
+         class="text-sm text-gray-300 hover:text-white transition">
+        Leads
+      </a>
+
+      <a href="{% url 'leads:list' %}"
+         class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded-lg transition">
+        Novo Lead
+      </a>
+
+      <div class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-sm text-white">
+        {{ request.user.username|default:"A"|first|upper }}
+      </div>
+
+    </div>
+
+  </div>
+</nav>

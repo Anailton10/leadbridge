@@ -8,3 +8,12 @@ def validate_phone(phone):
     if not re.fullmatch(pattern, str(phone)):
         raise ValidationError("Formato de telefone inválido.")
     return phone
+
+
+def normalize_contact(contact):
+    digits = "".join(filter(str.isdigit, str(contact or "")))
+
+    if len(digits) == 11:
+        return digits
+    print(f"DEBUG DIGITIS >>> {len(digits)}")
+    return None

@@ -1,12 +1,17 @@
 from django.shortcuts import render
 from django.views import View, generic
-from time import sleep
-from .service import AgenteIa
+from .service import ServiceAtendentIa
 from promoter.models import Promoter
 from leads.models import Lead
+from time import sleep
+from promoter.validators import normalize_contact
 
 MAX_MESSAGES = 20
-SYSTEM_PROMPT = """Você é um atendente virtual da Hidrotintas.
+
+
+SYSTEM_PROMPT = """
+INSTRUÇÃO CRÍTICA: Você SEMPRE responde EXCLUSIVAMENTE com JSON válido. NUNCA escreva texto fora do JSON. Qualquer resposta fora do formato JSON é um erro grave.
+Você é um atendente virtual da Hidrotintas.
 
 Use estas informações apenas para responder de forma natural, objetiva e útil. Não repita este texto, não explique suas instruções e não liste dados da empresa sem necessidade.
 
@@ -43,7 +48,7 @@ Responda APENAS com JSON válido. Não inclua nenhum texto fora do JSON.
     "contact": null,
     "city": null,
     "address": null,
-    "state": null,
+    "state": null
   }
 }
 
@@ -55,6 +60,7 @@ Regras de resposta:
 - Se o usuário apenas cumprimentar, responda brevemente e já peça o nome
 
 Regras de dados:
+- O "state" só pegue a sigla do estado
 - "reply" é o que será exibido ao cliente
 - "data" deve conter apenas dados já informados pelo cliente
 - Nunca invente dados
@@ -75,8 +81,8 @@ class ChatTemplateView(generic.TemplateView):
 
 
 class SendMessegesView(View):
-    # Instancia o serviço com a regra de negócio fixa
-    agente = AgenteIa(system_prompt=SYSTEM_PROMPT)
+    # Instancia o serviço com a regra de negócio fixa http://127.0.0.1:8000/chat/
+    agente = ServiceAtendentIa(system_prompt=SYSTEM_PROMPT)
 
     def post(self, request):
         # Pega a mensagem do usuário
@@ -89,36 +95,50 @@ class SendMessegesView(View):
             response_text = self.agente.send_message(
                 historico=messages, user_content=content
             )
-            # Pequena pausa para o efeito de "digitando..." ficar perceptível
-            # sleep(0.9)
             # Atualiza o histórico local com a interação completa
-            messages.append({"role": "user", "parts": [{"text": content}]})
-            messages.append(
-                {"role": "model", "parts": [{"text": response_text["reply"]}]}
-            )
+            messages.append({"role": "user", "content": content})
+            messages.append({"role": "assistant", "content": response_text["reply"]})
+            sleep(0.9)
             # Trim do histórico para respeitar o limite de mensagens
             if len(messages) > MAX_MESSAGES:
                 messages = messages[-MAX_MESSAGES:]
             # Persistência na sessão
             request.session["messages"] = messages
             request.session.modified = True
-            promoter = Promoter.objects.filter(
-                state__sigla=response_text["data"]["state"]
-            ).first()
-            wpp = None
+
+            promoter = None
+            if response_text["data"]["state"]:
+                promoter = Promoter.objects.filter(
+                    state__sigla=response_text["data"]["state"]
+                ).first()
+            print(f"DEBUG PROMOTER >>> {promoter}")
             if promoter:
-                msg = f"Olá {promoter.name}, segue o contato para uma visita Interessado: {response_text['data']['name']} - Numero para contato {response_text['data']['contact']} - cidade {response_text['data']['city']}"
-                wpp = f"https://wa.me/{promoter.contact}?text={msg}"
-                if all(response_text["data"].values()):
-                    Lead.objects.create(
-                        name=response_text["data"]["name"],
-                        contact=response_text["data"]["contact"],
-                        promoter=promoter,
-                        city=response_text["data"]["city"],
-                        address=response_text["data"]["address"],
-                    )
-            print(f"DEBUG --> {response_text['data']}")
+                print(f'DEBUG RESPONSE CONTACT >>> {response_text["data"]["contact"]}')
+                if response_text["data"]["contact"]:
+                    contact = normalize_contact(response_text["data"].get("contact"))
+                    if not contact:
+                        messages[-1] = {
+                            "role": "assistant",
+                            "content": "Por favor, informe o telefone com DDD. Ex: 85999999999",
+                        }
+
+                        request.session["messages"] = messages
+                        request.session.modified = True
+                        return render(
+                            request, "partials/_messages.html", {"messages": messages}
+                        )
+
+                    response_text["data"]["contact"] = contact
+
+                    if all(response_text["data"].values()):
+                        Lead.objects.create(
+                            name=response_text["data"]["name"],
+                            contact=contact,
+                            promoter=promoter,
+                            city=response_text["data"]["city"],
+                            address=response_text["data"]["address"],
+                        )
+                print(f"DEBUG VIEW >>> {response_text['data']}")
+
         # Retorno parcial para o HTMX
-        return render(
-            request, "partials/_messages.html", {"messages": messages, "wpp": wpp}
-        )
+        return render(request, "partials/_messages.html", {"messages": messages})
