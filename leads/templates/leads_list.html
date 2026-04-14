@@ -1,17 +1,14 @@
 {% extends "base.html" %}
-
 {% block title %}Leads{% endblock %}
 {% block content %}
-<div class="p-6">
+<div class="w-full h-full p-6">
   <div class="flex items-center justify-between mb-6">
     {% block navbar_title %}Leads{% endblock %}
-
     <!-- loading indicator -->
     <span id="leads-loading" class="htmx-indicator text-sm text-gray-400">
       Atualizando...
     </span>
   </div>
-
   <div class="overflow-x-auto rounded-lg border border-gray-800">
     <table class="w-full text-sm text-left">
       
@@ -25,7 +22,6 @@
           <th class="px-4 py-3">Ação</th>
         </tr>
       </thead>
-
       <tbody 
         id="leads-table"
         class="divide-y divide-gray-800"
@@ -36,7 +32,6 @@
       >
         {% include "partials/_leads_table.html" %}
       </tbody>
-
     </table>
   </div>
 </div>

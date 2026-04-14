@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
+
+  <!-- Título -->
+  <div class="text-center">
+    <h1 class="text-2xl font-semibold">Entrar</h1>
+    <p class="text-sm text-gray-400">Acesse sua conta</p>
+  </div>
+
+  <!-- Form -->
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <div
+      id="form-container"
+      class="space-y-4"
+      hx-post="{% url 'login' %}"
+      hx-target="#form-container"
+      hx-swap="outerHTML"
+      hx-trigger="submit from:form"
+    >
+      <!-- Username -->
+      <div>
+        <label class="block text-sm mb-1">Usuário</label>
+        {{ form.username }}
+      </div>
+      <!-- Password -->
+      <div>
+        <label class="block text-sm mb-1">Senha</label>
+        {{ form.password }}
+      </div>
+      <!-- Errors -->
+      {% if form.errors %}
+        <div class="text-sm text-red-400">
+          Usuário ou senha inválidos
+        </div>
+      {% endif %}
+      <!-- Submit -->
+      <button
+        type="submit"
+        class="w-full bg-blue-600 hover:bg-blue-500 transition rounded-lg py-2 font-medium flex items-center justify-center gap-2"
+      >
+        Entrar
+        <span class="htmx-indicator text-sm">...</span>
+      </button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
