@@ -1,4 +1,4 @@
-# 🎨 TintaLead
+# 🎨 LeadBridge
 
 Sistema web de captação e gestão de leads para revendedores, desenvolvido para uma empresa que busca melhorar seus atendimentos. Automatiza o atendimento via chat com IA, coleta dados do interessado e encaminha para o representante comercial responsável pela região.
 
