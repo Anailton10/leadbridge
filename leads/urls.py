@@ -3,6 +3,6 @@ from . import views
 
 app_name = "leads"
 urlpatterns = [
-    path("list/", views.LeadsListView.as_view(), name="list"),
+    path("", views.LeadsListView.as_view(), name="list"),
     path("list/partial/", views.LeadsListPartialView.as_view(), name="list_partial"),
 ]

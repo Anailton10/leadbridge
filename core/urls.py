@@ -20,9 +20,9 @@ from django.urls import include, path
 from . import views
 
 urlpatterns = [
+    path("", include("leads.urls")),
     path("admin/", admin.site.urls),
     path("accounts/login/", views.CustomLoginView.as_view(), name="login"),
     path("promoter/", include("promoter.urls")),
     path("chat/", include("chat.urls")),
-    path("leads/", include("leads.urls")),
 ]
